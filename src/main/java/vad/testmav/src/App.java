@@ -6,6 +6,8 @@ import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -23,6 +25,7 @@ import java.util.List;
 public class App extends Application {
 
     private List<String> fileNames = new ArrayList<>();
+    private String outputFileName;
     private Compare compare;
 
     @Override
@@ -64,36 +67,52 @@ public class App extends Application {
                 if (fileNames.size() == 2) {
                     root.getChildren().add(new Text(10, 50, "Your second file is: " + fileNames.get(1)));
 
-                    Button accept = new Button("Accept");
-                    Button refresh = new Button("Refresh");
+                    TextField name = new TextField("NewExcelFile");
+                    name.setLayoutX(135);
+                    name.setLayoutY(60);
+                    root.getChildren().add(name);
 
-                    accept.setLayoutX(10);
-                    accept.setLayoutY(60);
-                    accept.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent event) {
-                            root.getChildren().add(new Text(10, 120, "Start process"));
-                            compare = new Compare(fileNames);
-                            root.getChildren().add(new Text(10, 150, "Finish"));
-                        }
+                    Label nameFile = new Label("Write the name of file:");
+                    nameFile.setLayoutX(10);
+                    nameFile.setLayoutY(63);
+                    nameFile.setLabelFor(name);
+                    root.getChildren().add(nameFile);
+
+                    Button acceptName = new Button("Accept name");
+                    acceptName.setLayoutX(300);
+                    acceptName.setLayoutY(60);
+                    root.getChildren().add(acceptName);
+                    acceptName.setOnAction((event1) -> {
+                        outputFileName = name.getText() + ".xlsx";
+                        Button accept = new Button("Start");
+                        Button refresh = new Button("Refresh");
+
+                        accept.setLayoutX(10);
+                        accept.setLayoutY(90);
+                        accept.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                compare = new Compare(fileNames, outputFileName);
+                                compare.process();
+                                root.getChildren().add(new Text(10, 150, "Finish"));
+                            }
+                        });
+
+                        refresh.setLayoutX(70);
+                        refresh.setLayoutY(90);
+                        refresh.setOnAction(new EventHandler<ActionEvent>() {
+                            @Override
+                            public void handle(ActionEvent event) {
+                                fileNames = new ArrayList<>();
+                                root.getChildren().clear();
+                                root.getChildren().add(new Text(10, 10, "Drop file into the area"));
+                            }
+                        });
+
+                        root.getChildren().add(accept);
+                        root.getChildren().add(refresh);
                     });
-
-                    refresh.setLayoutX(100);
-                    refresh.setLayoutY(60);
-                    refresh.setOnAction(new EventHandler<ActionEvent>() {
-                        @Override
-                        public void handle(ActionEvent event) {
-                            fileNames = new ArrayList<>();
-                            root.getChildren().clear();
-                            root.getChildren().add(new Text(10, 10, "Drop file into the area"));
-                        }
-                    });
-
-                    root.getChildren().add(accept);
-                    root.getChildren().add(refresh);
                 }
-
-
             }
         });
 
